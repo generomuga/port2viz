@@ -29,7 +29,15 @@ def post_port_data(data):
         )
         con.commit()    
     except Exception as err:
-        con.rollback()        
+        con.rollback()
+
+def get_country_name(content, country_code):
+    rows = content.find_all("tr")
+    for row in rows:
+        if country_code in str(row).strip():
+            cols = row.find_all("td")
+            country_name = cols[1].string
+            return country_name
 
 if __name__ == '__main__':
 
@@ -37,6 +45,7 @@ if __name__ == '__main__':
     ROOT = os.path.abspath(os.curdir)
     DRIVER_PATH = ROOT+'/driver/chromedriver.exe'
     DB_PATH = ROOT+'/db/kdm_dev_try.db'
+    BASE_URL = 'https://unece.org/trade/cefact/unlocode-code-list-country-and-territory'
     BASE_URL_LOCODE = 'https://service.unece.org/trade/locode/'
     EXTENSION = '.htm'
 
@@ -60,34 +69,40 @@ if __name__ == '__main__':
     ports = []
     id = 0
 
+    # Get home page content
+    home_page_content = scp.get_page_content(
+        url=BASE_URL
+    )
+
     for locinfo in locinfos:
         # Get country and location code
-        country, locode = str(locinfo).split()
+        country_code, locode = str(locinfo).split()
 
         # Set location code URL
         locode_url = set_locode_url(
             base_url = BASE_URL_LOCODE,
-            country_code = country.lower(),
+            country_code = country_code.lower(),
             extension = EXTENSION
         )
 
         # Get page content for each url call
-        page_content = scp.get_page_content(
+        locode_page_content = scp.get_page_content(
             url=locode_url
         )
 
         # Get all data in <tr> elements
-        rows = page_content.find_all("tr")
+        rows = locode_page_content.find_all("tr")
 
         for row in rows:
             # Intialize dictionary port data
             dict_port = {}
 
             # Check if the country and locode are existing in the row
-            if country+'  '+locode in str(row).strip():
+            if country_code+'  '+locode in str(row).strip():
                 id += 1
                 cols = row.find_all("td")
                 unlocode = cols[1].string
+                country_name = get_country_name(home_page_content, country_code)
                 port_name = cols[2].string
                 function = cols[5].string
                 coordinates = cols[9].string
@@ -97,7 +112,7 @@ if __name__ == '__main__':
                     "id": id,
                     "port_name": port_name,
                     "unlocode": unlocode,
-                    "country_name": "Philippines",
+                    "country_name": country_name,
                     "function": function,
                     "coordinates": coordinates
                 }
