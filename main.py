@@ -1,9 +1,7 @@
-from sqlite3.dbapi2 import DatabaseError
 from lib.database import Database
 from lib.scraper import Scraper
 
 import os
-import time
 import numpy as np
 
 def convert_to_list(results):
