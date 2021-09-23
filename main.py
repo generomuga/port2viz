@@ -19,28 +19,6 @@ def set_locode_url(**kwargs):
 def get_distinct_location(locations):
     return np.unique(locations)
 
-def post_port_data(data):
-    try:
-        cur.executemany(
-            "INSERT INTO port (port_name,country_name,unlocode,function,coordinates,is_failed_mapping) VALUES (:port_name,:country_name,:unlocode,:function,:coordinates,:is_failed_mapping)",
-            data
-        )
-        con.commit()    
-    except Exception as err:
-        print (err)
-        con.rollback()
-
-def put_port_data(data):
-    try:
-        cur.executemany(
-            "UPDATE cargoline SET is_failed_mapping = :is_failed_mapping WHERE id = :id",
-            data
-        )
-        con.commit()    
-    except Exception as err:
-        print (err)
-        con.rollback()
-
 def get_country_name(content, country_code):
     rows = content.find_all("tr")
     for row in rows:
@@ -156,7 +134,32 @@ if __name__ == '__main__':
                 ports.append(dict_port)
 
     # Save to database
-    post_port_data(ports)
+    query_save_port = """
+            INSERT INTO port 
+                (
+                    port_name,
+                    country_name,
+                    unlocode,
+                    function,
+                    coordinates,
+                    is_failed_mapping
+                ) 
+            VALUES 
+                (
+                    :port_name,
+                    :country_name,
+                    :unlocode,
+                    :function,
+                    :coordinates,
+                    :is_failed_mapping
+                )
+            """
+    db.post_data(
+        con=con,
+        cursor=cur,
+        query_str=query_save_port,
+        data=ports
+    )
         
     query = """
                 SELECT 
@@ -185,9 +188,54 @@ if __name__ == '__main__':
 
     results = db.get_data(cursor=cur, query_str=query)
         
+    list_success = []
+    list_failed = []
+
     for result in results:
+        dict_success = {}
+        dict_failed = {}
         id = result[0]
+        unlocode = result[1]
+        eta = result[2]
+        etb = result[3]
+        etd = result[4]
+        quantity = result[5]
+        material = result[6]
+        function = result[7]
+        port_name = result[8]
+        country_name = result[9]
+        function = result[10]
+        coordinates = result[11]
         is_failed_mapping = result[-1]
 
-        print (result)
+        if int(is_failed_mapping) == 0:
+            dict_success = {
+                'id':id,
+                'unlocode':unlocode,
+                'eta':eta,
+                'etb':etb,
+                'etd':etd,
+                'quantity':quantity,
+                'material':material,
+                'function':function,
+                'port_name':port_name,
+                'country_name':country_name,
+                'function':function,
+                'coordinates':coordinates
+            }
+        else:
+            dict_failed = {
+                'id':id,
+                'unlocode':unlocode,
+                'eta':eta,
+                'etb':etb,
+                'etd':etd,
+                'quantity':quantity,
+                'material':material,
+                'function':function,
+                'port_name':port_name,
+                'country_name':country_name,
+                'function':function,
+                'coordinates':coordinates
+            }
     
