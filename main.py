@@ -85,6 +85,7 @@ if __name__ == '__main__':
     scp = Scraper()
 
     # Get locode data
+    print ('Getting list of unlocode from db...')
     results = db.get_data(cursor=cur, query_str=query)
 
     # Convert the db results to a list and get the distinct values
@@ -178,21 +179,15 @@ if __name__ == '__main__':
                     port p 
                 ON 
                     p.unlocode = c.unlocode
+                ORDER BY
+                    c.unlocode
             """
 
     results = db.get_data(cursor=cur, query_str=query)
-    
-    
-    updates = []
+        
     for result in results:
-        dict_update = {}
         id = result[0]
         is_failed_mapping = result[-1]
-        
-        dict_update = {
-            "id": id,
-            "is_failed_mapping": is_failed_mapping
-        }
-        updates.append(dict_update)
-        
-    put_port_data(updates)
+
+        print (result)
+    
