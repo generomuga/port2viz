@@ -21,6 +21,16 @@ def set_locode_url(**kwargs):
 def get_distinct_location(locations):
     return np.unique(locations)
 
+def post_port_data(data):
+    try:
+        cur.executemany(
+            "INSERT INTO port (port_name,country_name,unlocode,function,coordinates) VALUES (:port_name,:country_name,:unlocode,:function,:coordinates)",
+            data
+        )
+        con.commit()    
+    except Exception as err:
+        con.rollback()        
+
 if __name__ == '__main__':
 
     # Set required paths and attributes
@@ -85,11 +95,5 @@ if __name__ == '__main__':
     
                 ports.append(dict_port)
 
-    cur.executemany(
-        "INSERT INTO port (port_name,country_name,unlocode,function,coordinates) VALUES (:port_name,:country_name,:unlocode,:function,:coordinates)",
-        ports
-    )
-    con.commit()
-
-    # for port in ports:
-    #     print (port['id'])
+    post_port_data(ports)
+    
