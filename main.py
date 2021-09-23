@@ -37,6 +37,23 @@ def get_country_name(content, country_code):
             country_name = cols[1].string
             return country_name
 
+def is_failed_mapping(**kwargs):
+    function = kwargs['function']
+    country = kwargs['country_name']
+    port = kwargs['port_name']
+    coordinates = kwargs['coordinates']
+
+    if '1' not in function:
+        return 1
+    if len(country) <= 0 or str(country) == '':
+        return 1
+    if len(port) <= 0 or str(port) == '':
+        return 1
+    if len(coordinates) <= 0 or str(coordinates) == '':
+        return 1
+
+    return 0
+
 if __name__ == '__main__':
 
     # Set required paths and attributes
@@ -99,7 +116,7 @@ if __name__ == '__main__':
             if country_code+'  '+locode in str(row).strip():
                 id += 1
                 cols = row.find_all("td")
-                unlocode = cols[1].string
+                unlocode = country_code+'  '+locode
                 country_name = get_country_name(home_page_content, country_code)
                 port_name = cols[2].string
                 function = cols[5].string
