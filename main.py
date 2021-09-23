@@ -56,26 +56,34 @@ if __name__ == '__main__':
     list_location = convert_to_list(results)
     locinfos = get_distinct_location(list_location)
 
+    # Initialize variable that will handle port data and id
     ports = []
     id = 0
 
     for locinfo in locinfos:
+        # Get country and location code
         country, locode = str(locinfo).split()
 
+        # Set location code URL
         locode_url = set_locode_url(
             base_url = BASE_URL_LOCODE,
             country_code = country.lower(),
             extension = EXTENSION
         )
 
+        # Get page content for each url call
         page_content = scp.get_page_content(
             url=locode_url
         )
 
+        # Get all data in <tr> elements
         rows = page_content.find_all("tr")
 
         for row in rows:
+            # Intialize dictionary port data
             dict_port = {}
+
+            # Check if the country and locode are existing in the row
             if country+'  '+locode in str(row).strip():
                 id += 1
                 cols = row.find_all("td")
@@ -84,6 +92,7 @@ if __name__ == '__main__':
                 function = cols[5].string
                 coordinates = cols[9].string
 
+                # Set dictionary port data
                 dict_port = {
                     "id": id,
                     "port_name": port_name,
@@ -93,7 +102,8 @@ if __name__ == '__main__':
                     "coordinates": coordinates
                 }
     
+                # Save to list of port data
                 ports.append(dict_port)
 
+    # Save to database
     post_port_data(ports)
-    
