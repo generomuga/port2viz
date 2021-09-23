@@ -22,11 +22,23 @@ def get_distinct_location(locations):
 def post_port_data(data):
     try:
         cur.executemany(
-            "INSERT INTO port (port_name,country_name,unlocode,function,coordinates) VALUES (:port_name,:country_name,:unlocode,:function,:coordinates)",
+            "INSERT INTO port (port_name,country_name,unlocode,function,coordinates,is_failed_mapping) VALUES (:port_name,:country_name,:unlocode,:function,:coordinates,:is_failed_mapping)",
             data
         )
         con.commit()    
     except Exception as err:
+        print (err)
+        con.rollback()
+
+def put_port_data(data):
+    try:
+        cur.executemany(
+            "UPDATE cargoline SET is_failed_mapping = :is_failed_mapping WHERE id = :id",
+            data
+        )
+        con.commit()    
+    except Exception as err:
+        print (err)
         con.rollback()
 
 def get_country_name(content, country_code):
@@ -51,7 +63,6 @@ def is_failed_mapping(**kwargs):
         return 1
     if len(coordinates) <= 0 or str(coordinates) == '':
         return 1
-
     return 0
 
 if __name__ == '__main__':
@@ -85,6 +96,7 @@ if __name__ == '__main__':
     id = 0
 
     # Get home page content
+    print ('Getting home page content...')
     home_page_content = scp.get_page_content(
         url=BASE_URL
     )
@@ -121,6 +133,12 @@ if __name__ == '__main__':
                 port_name = cols[2].string
                 function = cols[5].string
                 coordinates = cols[9].string
+                is_failed = is_failed_mapping(
+                    function=function,
+                    country_name=country_name,
+                    port_name=port_name,
+                    coordinates=coordinates
+                )
 
                 # Set dictionary port data
                 dict_port = {
@@ -129,11 +147,52 @@ if __name__ == '__main__':
                     "unlocode": unlocode,
                     "country_name": country_name,
                     "function": function,
-                    "coordinates": coordinates
+                    "coordinates": coordinates,
+                    "is_failed_mapping": is_failed
                 }
-    
+
                 # Save to list of port data
                 ports.append(dict_port)
 
     # Save to database
     post_port_data(ports)
+        
+    query = """
+                SELECT 
+                    c.id,
+                    c.unlocode,
+                    c.eta,
+                    c.etb,
+                    c.etd,
+                    c.quantity,
+                    c.material,
+                    p.function,
+                    p.port_name,
+                    p.country_name,
+                    p.function,
+                    p.coordinates,
+                    p.is_failed_mapping
+                FROM 
+                    cargoline c 
+                JOIN 
+                    port p 
+                ON 
+                    p.unlocode = c.unlocode
+            """
+
+    results = db.get_data(cursor=cur, query_str=query)
+    
+    
+    updates = []
+    for result in results:
+        dict_update = {}
+        id = result[0]
+        is_failed_mapping = result[-1]
+        
+        dict_update = {
+            "id": id,
+            "is_failed_mapping": is_failed_mapping
+        }
+        updates.append(dict_update)
+        
+    put_port_data(updates)
