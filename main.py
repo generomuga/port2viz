@@ -135,25 +135,25 @@ if __name__ == '__main__':
 
     # Save to database
     query_save_port = """
-            INSERT INTO port 
-                (
-                    port_name,
-                    country_name,
-                    unlocode,
-                    function,
-                    coordinates,
-                    is_failed_mapping
-                ) 
-            VALUES 
-                (
-                    :port_name,
-                    :country_name,
-                    :unlocode,
-                    :function,
-                    :coordinates,
-                    :is_failed_mapping
-                )
-            """
+        INSERT INTO port 
+            (
+                port_name,
+                country_name,
+                unlocode,
+                function,
+                coordinates,
+                is_failed_mapping
+            ) 
+        VALUES 
+            (
+                :port_name,
+                :country_name,
+                :unlocode,
+                :function,
+                :coordinates,
+                :is_failed_mapping
+            )
+    """
     db.post_data(
         con=con,
         cursor=cur,
@@ -161,32 +161,32 @@ if __name__ == '__main__':
         data=ports
     )
         
-    query = """
-                SELECT 
-                    c.id,
-                    c.unlocode,
-                    c.eta,
-                    c.etb,
-                    c.etd,
-                    c.quantity,
-                    c.material,
-                    p.function,
-                    p.port_name,
-                    p.country_name,
-                    p.function,
-                    p.coordinates,
-                    p.is_failed_mapping
-                FROM 
-                    cargoline c 
-                JOIN 
-                    port p 
-                ON 
-                    p.unlocode = c.unlocode
-                ORDER BY
-                    c.unlocode
-            """
+    query_join_port_cargoline = """
+        SELECT 
+            c.id,
+            c.unlocode,
+            c.eta,
+            c.etb,
+            c.etd,
+            c.quantity,
+            c.material,
+            p.function,
+            p.port_name,
+            p.country_name,
+            p.function,
+            p.coordinates,
+            p.is_failed_mapping
+        FROM 
+            cargoline c 
+        JOIN 
+            port p 
+        ON 
+            p.unlocode = c.unlocode
+        ORDER BY
+            c.unlocode
+    """
 
-    results = db.get_data(cursor=cur, query_str=query)
+    results = db.get_data(cursor=cur, query_str=query_join_port_cargoline)
         
     list_success = []
     list_failed = []
@@ -217,12 +217,13 @@ if __name__ == '__main__':
                 'etd':etd,
                 'quantity':quantity,
                 'material':material,
-                'function':function,
+                'port_function':function,
                 'port_name':port_name,
                 'country_name':country_name,
                 'function':function,
                 'coordinates':coordinates
             }
+            list_success.append(dict_success)
         else:
             dict_failed = {
                 'id':id,
@@ -232,10 +233,55 @@ if __name__ == '__main__':
                 'etd':etd,
                 'quantity':quantity,
                 'material':material,
-                'function':function,
+                'port_function':function,
                 'port_name':port_name,
                 'country_name':country_name,
                 'function':function,
                 'coordinates':coordinates
             }
-    
+            list_failed.append(dict_failed)
+
+    DB_PATH_PC = ROOT+'/db/port_cargoline.db'
+    db_pc = Database()
+    con_pc = db_pc.connect(db=DB_PATH_PC)
+    cur_pc = con_pc.cursor()
+
+    query_save_success = """
+        INSERT INTO port_cargoline 
+            (
+                id,
+                unlocode,
+                eta,
+                etb,
+                etd,
+                quantity,
+                material,
+                port_function,
+                port_name,
+                country_name,
+                function,
+                coordinates
+            ) 
+        VALUES 
+            (
+                :id,
+                :unlocode,
+                :eta,
+                :etb,
+                :etd,
+                :quantity,
+                :material,
+                :port_function,
+                :port_name,
+                :country_name,
+                :function,
+                :coordinates
+            )
+    """
+    db_pc.post_data(
+        con=con_pc,
+        cursor=cur_pc,
+        query_str=query_save_success,
+        data=list_success
+    )
+
