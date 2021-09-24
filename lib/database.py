@@ -55,3 +55,15 @@ class Database:
             con.rollback()
             logging.error(err)
             print (err)
+
+    def update_schema(self, **kwargs):
+        sql_file = kwargs['sql_file']
+        cur = kwargs['cursor']
+        try:
+            session = open(sql_file)
+            sql_as_str = session.read()
+            cur.executescript(sql_as_str)
+            logging.info('Query executed: '+str(sql_as_str))
+        except Exception as err:
+            logging.error(err)
+            print (err)

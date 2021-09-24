@@ -113,6 +113,18 @@ if __name__ == '__main__':
     con_pc = db_pc.connect(db=DB_PATH_PC)
     cur_pc = con_pc.cursor()
 
+    # Create table port if not exists
+    db_p.update_schema(
+        sql_file = ROOT+'/scripts/create_table_port.sql',
+        cursor = cur_p
+    )
+
+    # Create table port_cargoline if not exists
+    db_pc.update_schema(
+        sql_file = ROOT+'/scripts/create_table_port_cargoline.sql',
+        cursor = cur_pc
+    )
+
     # Reset port table
     db_p.truncate_table(
         con=con_p,
@@ -185,14 +197,14 @@ if __name__ == '__main__':
                 function = cols[5].string
                 coordinates = cols[9].string
                 # Activate this during the actual run
-                # is_failed = is_failed_mapping(
-                #     function=function,
-                #     country_name=country_name,
-                #     port_name=port_name,
-                #     coordinates=coordinates
-                # )
+                is_failed = is_failed_mapping(
+                    function=function,
+                    country_name=country_name,
+                    port_name=port_name,
+                    coordinates=coordinates
+                )
                 # Activate this if you want to test the function
-                is_failed = random.randrange(0,2)
+                # is_failed = random.randrange(0,2)
 
                 # Set dictionary port data
                 dict_port = {
