@@ -1,5 +1,6 @@
 from os import error
 import sqlite3 as sq
+import logging
 import sys
 
 class Database:
@@ -10,18 +11,20 @@ class Database:
     def connect(self, **kwargs):
         db = kwargs['db']
         try:
-            print ('Connected to db: '+db+'...')
+            logging.info('Connected to db: '+db)
             return sq.connect(db)
         except Exception as err:
+            logging.error(err)
             print (err)
 
     def get_data(self, **kwargs):
         cur = kwargs['cursor']
         query = kwargs['query_str']
         try:
-            print ('Successfully get the data...')
+            logging.info('Query executed: '+query)
             return cur.execute(query)
         except Exception as err:
+            logging.error(err)
             print (err)
 
     def post_data(self, **kwargs):
@@ -33,20 +36,23 @@ class Database:
         try:
             print ('Successfully saved the data...')
             cur.executemany(query,data)
-            con.commit()    
+            con.commit()
+            logging.info('Query executed: '+query)
         except Exception as err:
-            print (err)
             con.rollback()
-
+            logging.error(err)
+            print (err)
+            
     def truncate_table(self, **kwargs):
         con = kwargs['con']
         cur = kwargs['cursor']
         table = kwargs['table']
         try:
             query = "DELETE FROM "+table
-            print ('Truncate table')
             cur.execute(query)
             con.commit()    
+            logging.info('Query executed: '+query)
         except Exception as err:
-            print (err)
             con.rollback()
+            logging.error(err)
+            print (err)
