@@ -37,3 +37,16 @@ class Database:
         except Exception as err:
             print (err)
             con.rollback()
+
+    def truncate_table(self, **kwargs):
+        con = kwargs['con']
+        cur = kwargs['cursor']
+        table = kwargs['table']
+        try:
+            query = "DELETE FROM "+table
+            print ('Truncate table')
+            cur.execute(query)
+            con.commit()    
+        except Exception as err:
+            print (err)
+            con.rollback()
