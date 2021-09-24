@@ -2,6 +2,7 @@ from lib.database import Database
 from lib.scraper import Scraper
 
 import os
+import sys
 import numpy as np
 import pandas as pd
 
@@ -9,10 +10,9 @@ import random
 
 def convert_to_list(results):
     list = []
-    for result in results:
-        list.append(result)
+    list.append([result for result in results])
     return list
-
+   
 def set_locode_url(**kwargs):
     base_url = kwargs['base_url']
     country_code = kwargs['country_code']
@@ -50,25 +50,31 @@ if __name__ == '__main__':
 
     # Set required paths and attributes
     ROOT = os.path.abspath(os.curdir)
-    DRIVER_PATH = ROOT+'/driver/chromedriver.exe'
-    DB_PATH = ROOT+'/db/kdm_dev_try.db'
+    DB_PATH_P = ROOT+'/db/kdm_dev_try.db'
+    DB_PATH_PC = ROOT+'/db/kdm_port_to_viz.db'
     BASE_URL = 'https://unece.org/trade/cefact/unlocode-code-list-country-and-territory'
     BASE_URL_LOCODE = 'https://service.unece.org/trade/locode/'
     EXTENSION = '.htm'
     EXPORT_PATH = ROOT+'/export/export_failed_mapping.xlsx'
 
-    # Initialize db class and components
-    db = Database()
-    con = db.connect(db=DB_PATH)
-    cur = con.cursor()
-    query = "SELECT unlocode FROM cargoline ORDER BY unlocode;"
+    # Initialize db class and components for port db
+    db_p = Database()
+    con_p = db_p.connect(db=DB_PATH_P)
+    cur_p = con_p.cursor()
+    query_get_unlocode = "SELECT unlocode FROM cargoline ORDER BY unlocode;"
+
+    # Initialize db class and components for kdm_vis_to_port db
+    
+    db_pc = Database()
+    con_pc = db_pc.connect(db=DB_PATH_PC)
+    cur_pc = con_pc.cursor()
 
     # Initialize scraper class
     scp = Scraper()
 
     # Get locode data
     print ('Getting list of unlocode from db...')
-    results = db.get_data(cursor=cur, query_str=query)
+    results = db_p.get_data(cursor=cur_p, query_str=query_get_unlocode)
 
     # Convert the db results to a list and get the distinct values
     list_location = convert_to_list(results)
@@ -161,9 +167,9 @@ if __name__ == '__main__':
                 :is_failed_mapping
             )
     """
-    db.post_data(
-        con=con,
-        cursor=cur,
+    db_p.post_data(
+        con=con_p,
+        cursor=cur_p,
         query_str=query_save_port,
         data=ports
     )
@@ -193,11 +199,14 @@ if __name__ == '__main__':
             c.unlocode
     """
 
-    results = db.get_data(cursor=cur, query_str=query_join_port_cargoline)
+    results = db_p.get_data(
+        cursor=cur_p, 
+        query_str=query_join_port_cargoline
+    )
         
     list_success = []
-    # list_failed = []
 
+    # Initialize list for the data frames
     list_failed_id = []
     list_failed_unlocode = []
     list_failed_eta = []
@@ -213,7 +222,7 @@ if __name__ == '__main__':
 
     for result in results:
         dict_success = {}
-        dict_failed = {}
+
         id = result[0]
         unlocode = result[1]
         eta = result[2]
@@ -245,21 +254,6 @@ if __name__ == '__main__':
             }
             list_success.append(dict_success)
         else:
-            # dict_failed = {
-            #     'id':id,
-            #     'unlocode':unlocode,
-            #     'eta':eta,
-            #     'etb':etb,
-            #     'etd':etd,
-            #     'quantity':quantity,
-            #     'material':material,
-            #     'port_function':function,
-            #     'port_name':port_name,
-            #     'country_name':country_name,
-            #     'function':function,
-            #     'coordinates':coordinates
-            # }
-            # list_failed.append(dict_failed)
             list_failed_id.append(id)
             list_failed_unlocode.append(unlocode)
             list_failed_eta.append(eta)
@@ -272,11 +266,6 @@ if __name__ == '__main__':
             list_failed_country_name.append(country_name)
             list_failed_function.append(function)
             list_failed_coordinates.append(coordinates)
-
-    DB_PATH_PC = ROOT+'/db/kdm_port_to_viz.db'
-    db_pc = Database()
-    con_pc = db_pc.connect(db=DB_PATH_PC)
-    cur_pc = con_pc.cursor()
 
     query_save_success = """
         INSERT INTO port_cargoline 
