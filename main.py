@@ -2,7 +2,6 @@ from lib.database import Database
 from lib.scraper import Scraper
 
 import os
-import sys
 import numpy as np
 import pandas as pd
 
@@ -10,25 +9,41 @@ import random
 
 def convert_to_list(results):
     list = []
-    list.append([result for result in results])
-    return list
+    try:
+        list.append([result for result in results])
+        print ("Converted to list...")
+        return list
+    except Exception as err:
+        print (err)    
    
 def set_locode_url(**kwargs):
-    base_url = kwargs['base_url']
-    country_code = kwargs['country_code']
-    extension = kwargs['extension']
-    return base_url+country_code+extension
+    try:
+        base_url = kwargs['base_url']
+        country_code = kwargs['country_code']
+        extension = kwargs['extension']
+        print ('Set url...')
+        return base_url+country_code+extension
+    except Exception as err:
+        print (err)
 
 def get_distinct_location(locations):
-    return np.unique(locations)
+    try:
+        print ('Got distint values')
+        return np.unique(locations)
+    except Exception as err:
+        print (err)
 
 def get_country_name(content, country_code):
     rows = content.find_all("tr")
-    for row in rows:
-        if country_code in str(row).strip():
-            cols = row.find_all("td")
-            country_name = cols[1].string
-            return country_name
+    try:
+        for row in rows:
+            if country_code in str(row).strip():
+                cols = row.find_all("td")
+                country_name = cols[1].string
+                print ('Got country name...')
+                return country_name
+    except Exception as err:
+        print (err)
 
 def is_failed_mapping(**kwargs):
     function = kwargs['function']
@@ -73,7 +88,6 @@ if __name__ == '__main__':
     scp = Scraper()
 
     # Get locode data
-    print ('Getting list of unlocode from db...')
     results = db_p.get_data(cursor=cur_p, query_str=query_get_unlocode)
 
     # Convert the db results to a list and get the distinct values
@@ -85,7 +99,6 @@ if __name__ == '__main__':
     id = 0
 
     # Get home page content
-    print ('Getting home page content...')
     home_page_content = scp.get_page_content(
         url=BASE_URL
     )
@@ -217,7 +230,6 @@ if __name__ == '__main__':
     list_failed_function = []
     list_failed_port_name = []
     list_failed_country_name = []
-    list_failed_function = []
     list_failed_coordinates = []
 
     for result in results:
@@ -252,8 +264,10 @@ if __name__ == '__main__':
                 'function':function,
                 'coordinates':coordinates
             }
+            print ('SUCCESS', unlocode)
             list_success.append(dict_success)
         else:
+            print ('FAIELD',unlocode)
             list_failed_id.append(id)
             list_failed_unlocode.append(unlocode)
             list_failed_eta.append(eta)
@@ -264,7 +278,6 @@ if __name__ == '__main__':
             list_failed_function.append(function)
             list_failed_port_name.append(port_name)
             list_failed_country_name.append(country_name)
-            list_failed_function.append(function)
             list_failed_coordinates.append(coordinates)
 
     query_save_success = """
@@ -308,18 +321,18 @@ if __name__ == '__main__':
 
     data = {
         "id": list_failed_id,
-        "unlocode": unlocode,
-        "eta": eta,
-        "etb": etb,
-        "etd": etd,
-        "quantity": quantity,
-        "material": material,
-        "port_function": function,
-        "port_name": port_name,
-        "country_name": country_name,
-        "function": function,
-        "coordinates": coordinates
+        "unlocode": list_failed_unlocode,
+        "eta": list_failed_eta,
+        "etb": list_failed_etb,
+        "etd": list_failed_etd,
+        "quantity": list_failed_quantity,
+        "material": list_failed_material,
+        "port_function": list_failed_function,
+        "port_name": list_failed_port_name,
+        "country_name": list_failed_country_name,
+        "function": list_failed_function,
+        "coordinates": list_failed_coordinates
     }
-
+    
     df = pd.DataFrame(data)
     df.to_excel(EXPORT_PATH)
