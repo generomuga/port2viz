@@ -20,6 +20,7 @@ class Scraper:
             page = requests.get(url)
             if page.status_code == 200:
                 soup = BeautifulSoup(page.content, 'html5lib')
+                print ('Get page content...')
                 return soup
         except Exception as err:
             print (err)
