@@ -4,6 +4,8 @@ from lib.scraper import Scraper
 import os
 import numpy as np
 
+import random
+
 def convert_to_list(results):
     list = []
     for result in results:
@@ -112,12 +114,14 @@ if __name__ == '__main__':
                 port_name = cols[2].string
                 function = cols[5].string
                 coordinates = cols[9].string
-                is_failed = is_failed_mapping(
-                    function=function,
-                    country_name=country_name,
-                    port_name=port_name,
-                    coordinates=coordinates
-                )
+                # is_failed = is_failed_mapping(
+                #     function=function,
+                #     country_name=country_name,
+                #     port_name=port_name,
+                #     coordinates=coordinates
+                # )
+                is_failed = random.randrange(0,2)
+                print (is_failed)
 
                 # Set dictionary port data
                 dict_port = {
@@ -127,6 +131,7 @@ if __name__ == '__main__':
                     "country_name": country_name,
                     "function": function,
                     "coordinates": coordinates,
+                    # "is_failed_mapping": is_failed
                     "is_failed_mapping": is_failed
                 }
 
