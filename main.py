@@ -61,6 +61,14 @@ def is_failed_mapping(**kwargs):
         return 1
     return 0
 
+def save_to_xls(data, path):
+    try:
+        df = pd.DataFrame(data)
+        df.to_excel(path)
+        print ('Saved to xls...')
+    except Exception as err:
+        print (err)
+
 if __name__ == '__main__':
 
     # Set required paths and attributes
@@ -142,7 +150,6 @@ if __name__ == '__main__':
                 #     coordinates=coordinates
                 # )
                 is_failed = random.randrange(0,2)
-                print (is_failed)
 
                 # Set dictionary port data
                 dict_port = {
@@ -233,8 +240,10 @@ if __name__ == '__main__':
     list_failed_coordinates = []
 
     for result in results:
+        # Intialize dictionary for success mapping
         dict_success = {}
 
+        # Parse result
         id = result[0]
         unlocode = result[1]
         eta = result[2]
@@ -249,6 +258,7 @@ if __name__ == '__main__':
         coordinates = result[11]
         is_failed_mapping = result[-1]
 
+        # Classiy successful and failed mapping
         if int(is_failed_mapping) == 0:
             dict_success = {
                 'id':id,
@@ -264,10 +274,8 @@ if __name__ == '__main__':
                 'function':function,
                 'coordinates':coordinates
             }
-            print ('SUCCESS', unlocode)
             list_success.append(dict_success)
         else:
-            print ('FAIELD',unlocode)
             list_failed_id.append(id)
             list_failed_unlocode.append(unlocode)
             list_failed_eta.append(eta)
@@ -280,6 +288,7 @@ if __name__ == '__main__':
             list_failed_country_name.append(country_name)
             list_failed_coordinates.append(coordinates)
 
+    # Query to save successful mapping
     query_save_success = """
         INSERT INTO port_cargoline 
             (
@@ -312,6 +321,8 @@ if __name__ == '__main__':
                 :coordinates
             )
     """
+    
+    # Save data to port_cargoline table
     db_pc.post_data(
         con=con_pc,
         cursor=cur_pc,
@@ -319,6 +330,7 @@ if __name__ == '__main__':
         data=list_success
     )
 
+    # Set failed mapping to dictionary
     data = {
         "id": list_failed_id,
         "unlocode": list_failed_unlocode,
@@ -334,5 +346,5 @@ if __name__ == '__main__':
         "coordinates": list_failed_coordinates
     }
     
-    df = pd.DataFrame(data)
-    df.to_excel(EXPORT_PATH)
+    # Save failed mapping to xls
+    save_to_xls(data, EXPORT_PATH)
