@@ -19,6 +19,7 @@ class Database:
         cur = kwargs['cursor']
         query = kwargs['query_str']
         try:
+            print ('Successfully get the data...')
             return cur.execute(query)
         except Exception as err:
             print (err)
@@ -30,6 +31,7 @@ class Database:
         data = kwargs['data']
         
         try:
+            print ('Successfully saved the data...')
             cur.executemany(query,data)
             con.commit()    
         except Exception as err:
