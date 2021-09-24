@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import numpy as np
 import configparser as cp
+import logging
 
 import random
 
@@ -12,9 +13,10 @@ def convert_to_list(results):
     list = []
     try:
         list.append([result for result in results])
-        print ("Converted to list...")
+        logging.info('Converting data to list...')
         return list
     except Exception as err:
+        logging.error(err)
         print (err)    
    
 def set_locode_url(**kwargs):
@@ -22,16 +24,18 @@ def set_locode_url(**kwargs):
         base_url = kwargs['base_url']
         country_code = kwargs['country_code']
         extension = kwargs['extension']
-        print ('Set url...')
+        logging.info('Setting locode url...')
         return base_url+country_code+extension
     except Exception as err:
+        logging.error(err)
         print (err)
 
 def get_distinct_location(locations):
     try:
-        print ('Got distint values')
+        logging.info('Getting unique location ...')
         return np.unique(locations)
     except Exception as err:
+        logging.error(err)
         print (err)
 
 def get_country_name(content, country_code):
@@ -41,9 +45,10 @@ def get_country_name(content, country_code):
             if country_code in str(row).strip():
                 cols = row.find_all("td")
                 country_name = cols[1].string
-                print ('Got country name...')
+                logging.info('Getting country name...')
                 return country_name
     except Exception as err:
+        logging.error(err)
         print (err)
 
 def is_failed_mapping(**kwargs):
@@ -52,26 +57,35 @@ def is_failed_mapping(**kwargs):
     port = kwargs['port_name']
     coordinates = kwargs['coordinates']
 
-    if '1' not in function:
-        return 1
-    if len(country) <= 0 or str(country) == '':
-        return 1
-    if len(port) <= 0 or str(port) == '':
-        return 1
-    if len(coordinates) <= 0 or str(coordinates) == '':
-        return 1
-    return 0
+    try:
+        logging.info('Getting country name...')
+        if '1' not in function:
+            return 1
+        if len(country) <= 0 or str(country) == '':
+            return 1
+        if len(port) <= 0 or str(port) == '':
+            return 1
+        if len(coordinates) <= 0 or str(coordinates) == '':
+            return 1
+        return 0
+    except Exception as err:
+        logging.error(err)
+        print (err)
 
 def save_to_xls(data, path):
     try:
         df = pd.DataFrame(data)
         df.to_excel(path)
-        print ('Saved to xls...')
+        logging.info('Saving to excel...')
     except Exception as err:
+        logging.error(err)
         print (err)
 
 if __name__ == '__main__':
-    
+
+    # Initialize logging settings
+    logging.basicConfig(filename='myfirstlog.log',level=logging.DEBUG, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
+
     # Initialize config reader and parser
     ROOT = os.path.abspath(os.curdir)
     CONFIG_PATH = ROOT+'/config/conf.ini'
@@ -162,12 +176,14 @@ if __name__ == '__main__':
                 port_name = cols[2].string
                 function = cols[5].string
                 coordinates = cols[9].string
+                # Activate this during the actual run
                 # is_failed = is_failed_mapping(
                 #     function=function,
                 #     country_name=country_name,
                 #     port_name=port_name,
                 #     coordinates=coordinates
                 # )
+                # Activate this if you want to test the function
                 is_failed = random.randrange(0,2)
 
                 # Set dictionary port data
