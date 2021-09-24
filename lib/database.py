@@ -22,3 +22,16 @@ class Database:
             return cur.execute(query)
         except Exception as err:
             print (err)
+
+    def post_data(self, **kwargs):
+        con = kwargs['con']
+        cur = kwargs['cursor']
+        query = kwargs['query_str']
+        data = kwargs['data']
+        
+        try:
+            cur.executemany(query,data)
+            con.commit()    
+        except Exception as err:
+            print (err)
+            con.rollback()
