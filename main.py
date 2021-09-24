@@ -236,9 +236,7 @@ if __name__ == '__main__':
         cursor=cur_p, 
         query_str=query_join_port_cargoline
     )
-        
-    list_success = []
-
+    
     # Initialize list for the data frames
     list_failed_id = []
     list_failed_unlocode = []
@@ -252,6 +250,9 @@ if __name__ == '__main__':
     list_failed_country_name = []
     list_failed_coordinates = []
 
+    # Initiliaze list to handle dict_success
+    list_success = []
+    
     for result in results:
         # Intialize dictionary for success mapping
         dict_success = {}
