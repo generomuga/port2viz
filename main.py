@@ -2,8 +2,9 @@ from lib.database import Database
 from lib.scraper import Scraper
 
 import os
-import numpy as np
 import pandas as pd
+import numpy as np
+import configparser as cp
 
 import random
 
@@ -70,22 +71,26 @@ def save_to_xls(data, path):
         print (err)
 
 if __name__ == '__main__':
+    
+    # Initialize config reader and parser
+    ROOT = os.path.abspath(os.curdir)
+    CONFIG_PATH = ROOT+'/config/conf.ini'
+    config = cp.ConfigParser()
+    config.read(CONFIG_PATH)
 
     # Set required paths and attributes
-    ROOT = os.path.abspath(os.curdir)
-    DB_PATH_P = ROOT+'/db/kdm_dev_try.db'
-    DB_PATH_PC = ROOT+'/db/kdm_port_to_viz.db'
-    BASE_URL = 'https://unece.org/trade/cefact/unlocode-code-list-country-and-territory'
-    BASE_URL_LOCODE = 'https://service.unece.org/trade/locode/'
-    EXTENSION = '.htm'
-    EXPORT_PATH = ROOT+'/export/export_failed_mapping.xlsx'
+    DB_PATH_P = ROOT+config['PATH']['DB_KDM']
+    DB_PATH_PC = ROOT+config['PATH']['DB_KDM_P2V']
+    BASE_URL = config['PATH']['BASE_URL']
+    BASE_URL_LOCODE = config['PATH']['BASE_URL_LOCODE']
+    EXTENSION = config['PATH']['EXTENSION']
+    EXPORT_PATH = ROOT+config['PATH']['EXPORT_PATH']
 
     # Initialize db class and components for port db
     db_p = Database()
     con_p = db_p.connect(db=DB_PATH_P)
     cur_p = con_p.cursor()
-    query_get_unlocode = "SELECT unlocode FROM cargoline ORDER BY unlocode;"
-
+    
     # Initialize db class and components for kdm_vis_to_port db
     db_pc = Database()
     con_pc = db_pc.connect(db=DB_PATH_PC)
@@ -109,6 +114,7 @@ if __name__ == '__main__':
     scp = Scraper()
 
     # Get locode data
+    query_get_unlocode = "SELECT unlocode FROM cargoline ORDER BY unlocode;"
     results = db_p.get_data(cursor=cur_p, query_str=query_get_unlocode)
 
     # Convert the db results to a list and get the distinct values
