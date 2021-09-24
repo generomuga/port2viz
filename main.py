@@ -87,10 +87,23 @@ if __name__ == '__main__':
     query_get_unlocode = "SELECT unlocode FROM cargoline ORDER BY unlocode;"
 
     # Initialize db class and components for kdm_vis_to_port db
-    
     db_pc = Database()
     con_pc = db_pc.connect(db=DB_PATH_PC)
     cur_pc = con_pc.cursor()
+
+    # Reset port table
+    db_p.truncate_table(
+        con=con_p,
+        cursor=cur_p,
+        table='port'
+    )
+
+    # Reset port_cargoline table
+    db_pc.truncate_table(
+        con=con_pc,
+        cursor=cur_pc,
+        table='port_cargoline'
+    )
 
     # Initialize scraper class
     scp = Scraper()
@@ -321,7 +334,7 @@ if __name__ == '__main__':
                 :coordinates
             )
     """
-    
+
     # Save data to port_cargoline table
     db_pc.post_data(
         con=con_pc,
