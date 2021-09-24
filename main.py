@@ -83,14 +83,17 @@ def save_to_xls(data, path):
 
 if __name__ == '__main__':
 
-    # Initialize logging settings
-    logging.basicConfig(filename='myfirstlog.log',level=logging.DEBUG, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
+    # Get root path
+    ROOT = os.path.abspath(os.curdir)
 
     # Initialize config reader and parser
-    ROOT = os.path.abspath(os.curdir)
     CONFIG_PATH = ROOT+'/config/conf.ini'
     config = cp.ConfigParser()
     config.read(CONFIG_PATH)
+
+    # Initialize logging settings
+    LOG_PATH = ROOT+config['PATH']['LOG_PATH']
+    logging.basicConfig(filename=LOG_PATH,level=logging.DEBUG, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 
     # Set required paths and attributes
     DB_PATH_P = ROOT+config['PATH']['DB_KDM']
