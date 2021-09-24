@@ -34,7 +34,6 @@ class Database:
         data = kwargs['data']
         
         try:
-            print ('Successfully saved the data...')
             cur.executemany(query,data)
             con.commit()
             logging.info('Query executed: '+query)

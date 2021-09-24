@@ -137,6 +137,8 @@ if __name__ == '__main__':
     # Convert the db results to a list and get the distinct values
     list_location = convert_to_list(results)
     locinfos = get_distinct_location(list_location)
+    count_locinfos = len(locinfos)
+    print ('+ Found '+str(count_locinfos)+' unique unlocodes to be scraped...')
 
     # Initialize variable that will handle port data and id
     ports = []
@@ -147,6 +149,7 @@ if __name__ == '__main__':
         url=BASE_URL
     )
 
+    scp_ctr = 0
     for locinfo in locinfos:
         # Get country and location code
         country_code, locode = str(locinfo).split()
@@ -165,7 +168,9 @@ if __name__ == '__main__':
 
         # Get all data in <tr> elements
         rows = locode_page_content.find_all("tr")
-
+        scp_ctr += 1
+        print ('+ Scraping unlocode '+str(country_code)+' '+str(locode)+' process '+str(scp_ctr)+'/'+str(count_locinfos)+'...')
+        
         for row in rows:
             # Intialize dictionary port data
             dict_port = {}
@@ -203,7 +208,9 @@ if __name__ == '__main__':
 
                 # Save to list of port data
                 ports.append(dict_port)
-
+                if len(ports) > 0:
+                    print ('--+ Data has been successfully scraped!')
+    
     # Save to database
     query_save_port = """
         INSERT INTO port 
@@ -384,6 +391,9 @@ if __name__ == '__main__':
         "function": list_failed_function,
         "coordinates": list_failed_coordinates
     }
-    
+
+    print ('MAPPING SUMMARY: successful:'+str(len(list_success))+ ' --- '+'failed:'+str(len(list_failed_id)))
+
     # Save failed mapping to xls
     save_to_xls(data, EXPORT_PATH)
+    print ("Failed mapping file: "+EXPORT_PATH)
