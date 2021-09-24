@@ -3,6 +3,7 @@ from lib.scraper import Scraper
 
 import os
 import numpy as np
+import pandas as pd
 
 import random
 
@@ -54,6 +55,7 @@ if __name__ == '__main__':
     BASE_URL = 'https://unece.org/trade/cefact/unlocode-code-list-country-and-territory'
     BASE_URL_LOCODE = 'https://service.unece.org/trade/locode/'
     EXTENSION = '.htm'
+    EXPORT_PATH = ROOT+'/export/export_failed_mapping.xlsx'
 
     # Initialize db class and components
     db = Database()
@@ -194,7 +196,20 @@ if __name__ == '__main__':
     results = db.get_data(cursor=cur, query_str=query_join_port_cargoline)
         
     list_success = []
-    list_failed = []
+    # list_failed = []
+
+    list_failed_id = []
+    list_failed_unlocode = []
+    list_failed_eta = []
+    list_failed_etb = []
+    list_failed_etd = []
+    list_failed_quantity = []
+    list_failed_material = []
+    list_failed_function = []
+    list_failed_port_name = []
+    list_failed_country_name = []
+    list_failed_function = []
+    list_failed_coordinates = []
 
     for result in results:
         dict_success = {}
@@ -230,23 +245,35 @@ if __name__ == '__main__':
             }
             list_success.append(dict_success)
         else:
-            dict_failed = {
-                'id':id,
-                'unlocode':unlocode,
-                'eta':eta,
-                'etb':etb,
-                'etd':etd,
-                'quantity':quantity,
-                'material':material,
-                'port_function':function,
-                'port_name':port_name,
-                'country_name':country_name,
-                'function':function,
-                'coordinates':coordinates
-            }
-            list_failed.append(dict_failed)
+            # dict_failed = {
+            #     'id':id,
+            #     'unlocode':unlocode,
+            #     'eta':eta,
+            #     'etb':etb,
+            #     'etd':etd,
+            #     'quantity':quantity,
+            #     'material':material,
+            #     'port_function':function,
+            #     'port_name':port_name,
+            #     'country_name':country_name,
+            #     'function':function,
+            #     'coordinates':coordinates
+            # }
+            # list_failed.append(dict_failed)
+            list_failed_id.append(id)
+            list_failed_unlocode.append(unlocode)
+            list_failed_eta.append(eta)
+            list_failed_etb.append(etb)
+            list_failed_etd.append(etd)
+            list_failed_quantity.append(quantity)
+            list_failed_material.append(material)
+            list_failed_function.append(function)
+            list_failed_port_name.append(port_name)
+            list_failed_country_name.append(country_name)
+            list_failed_function.append(function)
+            list_failed_coordinates.append(coordinates)
 
-    DB_PATH_PC = ROOT+'/db/port_cargoline.db'
+    DB_PATH_PC = ROOT+'/db/kdm_port_to_viz.db'
     db_pc = Database()
     con_pc = db_pc.connect(db=DB_PATH_PC)
     cur_pc = con_pc.cursor()
@@ -290,3 +317,20 @@ if __name__ == '__main__':
         data=list_success
     )
 
+    data = {
+        "id": list_failed_id,
+        "unlocode": unlocode,
+        "eta": eta,
+        "etb": etb,
+        "etd": etd,
+        "quantity": quantity,
+        "material": material,
+        "port_function": function,
+        "port_name": port_name,
+        "country_name": country_name,
+        "function": function,
+        "coordinates": coordinates
+    }
+
+    df = pd.DataFrame(data)
+    df.to_excel(EXPORT_PATH)
