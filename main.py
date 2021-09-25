@@ -179,9 +179,9 @@ if __name__ == '__main__':
         )
 
         # Get all data in <tr> elements
-        rows = locode_page_content.find_all("tr")
         scp_ctr += 1
         print ('+ Scraping unlocode '+str(country_code)+' '+str(locode)+' process '+str(scp_ctr)+'/'+str(count_locinfos)+'...')
+        rows = locode_page_content.find_all("tr")
         
         for row in rows:
             # Intialize dictionary port data
