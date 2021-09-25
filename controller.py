@@ -1,9 +1,18 @@
+import schedule
+import time
 import os
+
+def job():
+    os.system("python main.py")
 
 if __name__ == '__main__':
 
-    try:
-        os.system('python migrate.py')
-        os.system('python main.py')
-    except Exception as err:
-        print (err)
+    # Execute initial job
+    job()
+
+    # Run scheduled job
+    schedule.every(10).minutes.do(job)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
