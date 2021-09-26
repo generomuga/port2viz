@@ -41,18 +41,18 @@ To install these packages easily, you can follow these steps:
 2. Change directory (cd) to the directory where your `requirements.txt` is located.
 3. Type `python -m pip install -r requirements.txt`.
 
-## File Structure
+## Folder and File Structure
 
-- config (contains the operation configurations)
-- db (contains the raw and output databases)
-- export (contains the failed mapping excel file)
-- lib (contains Python classes)
-- logs (contains the logging information)
-- scripts (contains the sql scripts)
-- controller.py (contains scheduler function)
-- main.py (contains scraping operations)
-- test.py (contains unit test)
-- requirements.txt (contains dependencies)
+- config - contains the operation configurations
+- db - contains the raw and output databases
+- export - contains the failed mapping excel file
+- lib - contains Python classes
+- logs - contains the logging information
+- scripts - contains the sql scripts
+- controller.py - contains scheduler function
+- main.py - contains scraping operations
+- test.py - contains unit test
+- requirements.txt - contains dependencies
 
 ## About the Developer
 
