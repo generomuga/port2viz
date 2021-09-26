@@ -91,7 +91,6 @@ def convert_lat_lon(coordinates):
             lon = int(raw_lon[0:-1])/100
             return lat, lon
     except Exception as err:
-        print (err)
         return ""
 
 def get_formatted_addr(lat,lon):
@@ -102,7 +101,6 @@ def get_formatted_addr(lat,lon):
         admin1 = result[0]['admin1']
         return admin1 if str(admin2) == '' else admin2
     except Exception as err:
-        print (err)
         return ""
 
 if __name__ == '__main__':
@@ -242,7 +240,6 @@ if __name__ == '__main__':
                     formatted_address = get_formatted_addr(lat,lon)+', '+country_name
                 else:
                     lat,lon = '',''
-                    print ('faield lat lon')
 
                 # Set dictionary port data
                 dict_port = {
