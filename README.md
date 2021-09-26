@@ -56,8 +56,10 @@ To install these packages easily, you can follow these steps:
 
 ## How to Run
 
-- source env/bin/activate - to activate virtualenv
-- python controller.py - to run the scraper
+- Activate virtual env
+`source env/bin/activate`
+- Run the main scraper 
+`python controller.py`
 
 ## About the Developer
 
