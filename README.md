@@ -54,6 +54,11 @@ To install these packages easily, you can follow these steps:
 - test.py - contains unit test
 - requirements.txt - contains dependencies
 
+## How to Run
+
+- source env/bin/activate - to activate virtualenv
+- python controller.py - to run the scraper
+
 ## About the Developer
 
 This tool was developed by [Gene Romuga](https://github.com/generomuga), a programmer and constant student of IT.
