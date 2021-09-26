@@ -7,6 +7,7 @@ import numpy as np
 import configparser as cp
 import logging
 import time
+import reverse_geocoder as rg
 
 import random
 
@@ -81,6 +82,28 @@ def save_to_xls(data, path):
     except Exception as err:
         logging.error(err)
         print (err)
+
+def convert_lat_lon(coordinates):
+    try:
+        if len(coordinates) > 0:
+            raw_lat, raw_lon = coordinates.split()
+            lat = int(raw_lat[0:-1])/100
+            lon = int(raw_lon[0:-1])/100
+            return lat, lon
+    except Exception as err:
+        print (err)
+        return ""
+
+def get_formatted_addr(lat,lon):
+    try:
+        coordinates = (lat, lon)
+        result = rg.search(coordinates)
+        admin2 = result[0]['admin2']
+        admin1 = result[0]['admin1']
+        return admin1 if str(admin2) == '' else admin2
+    except Exception as err:
+        print (err)
+        return ""
 
 if __name__ == '__main__':
 
@@ -199,6 +222,11 @@ if __name__ == '__main__':
                 port_name = cols[2].string
                 function = cols[5].string
                 coordinates = cols[9].string
+                
+                lat = ''
+                lon = ''
+                formatted_address = ''
+
                 # Activate this during the actual run
                 is_failed = is_failed_mapping(
                     function=function,
@@ -209,6 +237,14 @@ if __name__ == '__main__':
                 # Activate this if you want to test the function
                 # is_failed = random.randrange(0,2)
 
+                if is_failed != 1:
+                    lat,lon = convert_lat_lon(coordinates)
+                    formatted_address = get_formatted_addr(lat,lon)+', '+country_name
+                    print ('Get lat lon')
+                else:
+                    lat,lon = '',''
+                    print ('faield lat lon')
+
                 # Set dictionary port data
                 dict_port = {
                     "id": id,
@@ -218,7 +254,10 @@ if __name__ == '__main__':
                     "function": function,
                     "coordinates": coordinates,
                     # "is_failed_mapping": is_failed
-                    "is_failed_mapping": is_failed
+                    "is_failed_mapping": is_failed,
+                    "lat": lat,
+                    "lon": lon,
+                    "formatted_address": formatted_address
                 }
 
                 # Save to list of port data
@@ -235,7 +274,8 @@ if __name__ == '__main__':
                 unlocode,
                 function,
                 coordinates,
-                is_failed_mapping
+                is_failed_mapping,
+                formatted_address
             ) 
         VALUES 
             (
@@ -244,7 +284,8 @@ if __name__ == '__main__':
                 :unlocode,
                 :function,
                 :coordinates,
-                :is_failed_mapping
+                :is_failed_mapping,
+                :formatted_address
             )
     """
     db_p.post_data(
@@ -268,7 +309,8 @@ if __name__ == '__main__':
             p.country_name,
             p.function,
             p.coordinates,
-            p.is_failed_mapping
+            p.is_failed_mapping,
+            p.formatted_address
         FROM 
             cargoline c 
         JOIN 
@@ -317,7 +359,8 @@ if __name__ == '__main__':
         country_name = result[9]
         function = result[10]
         coordinates = result[11]
-        is_failed_mapping = result[-1]
+        is_failed_mapping = result[12]
+        formatted_address = result[-1]
 
         # Classiy successful and failed mapping
         if int(is_failed_mapping) == 0:
@@ -333,7 +376,8 @@ if __name__ == '__main__':
                 'port_name':port_name,
                 'country_name':country_name,
                 'function':function,
-                'coordinates':coordinates
+                'coordinates':coordinates,
+                'formatted_address':formatted_address
             }
             list_success.append(dict_success)
         else:
@@ -364,7 +408,8 @@ if __name__ == '__main__':
                 port_name,
                 country_name,
                 function,
-                coordinates
+                coordinates,
+                formatted_address
             ) 
         VALUES 
             (
@@ -379,7 +424,8 @@ if __name__ == '__main__':
                 :port_name,
                 :country_name,
                 :function,
-                :coordinates
+                :coordinates,
+                :formatted_address
             )
     """
 
