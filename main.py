@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import configparser as cp
 import logging
+import time
 
 import random
 
@@ -52,10 +53,10 @@ def get_country_name(content, country_code):
         print (err)
 
 def is_failed_mapping(**kwargs):
-    function = kwargs['function']
-    country = kwargs['country_name']
-    port = kwargs['port_name']
-    coordinates = kwargs['coordinates']
+    function = str(kwargs['function']).replace(' ','')
+    country = str(kwargs['country_name']).replace(' ','')
+    port = str(kwargs['port_name']).replace(' ','')
+    coordinates = str(kwargs['coordinates']).replace(' ','')
 
     try:
         logging.info('Getting country name...')
@@ -172,6 +173,8 @@ if __name__ == '__main__':
             country_code = country_code.lower(),
             extension = EXTENSION
         )
+        
+        time.sleep(3)
 
         # Get page content for each url call
         locode_page_content = scp.get_page_content(
