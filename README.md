@@ -1,6 +1,6 @@
 ## Introduction
 
-`port2viz` is a [Python](https://www.python.org/) based web scraping/data mining tool for UN/LOCODE (Code for Trade and Transport Locations). It helps you to harvest data from a page source, format it and generate useful information for a maritime related industry for their operations.
+`port2viz` is a [Python](https://www.python.org/) based web scraping/data mining tool for UN/LOCODE (Code for Trade and Transport Locations). It helps you to harvest data from various page sources, format it and generate useful information for a maritime related industry operations.
 
 ## Prerequisites
 
