@@ -89,8 +89,10 @@ def convert_lat_lon(coordinates):
             raw_lat, raw_lon = coordinates.split()
             lat = int(raw_lat[0:-1])/100
             lon = int(raw_lon[0:-1])/100
+            logging.info('Converting lat lon...')
             return lat, lon
     except Exception as err:
+        logging.error(err)
         return ""
 
 def get_formatted_addr(lat,lon):
@@ -99,8 +101,10 @@ def get_formatted_addr(lat,lon):
         result = rg.search(coordinates)
         admin2 = result[0]['admin2']
         admin1 = result[0]['admin1']
+        logging.info('Getting formatted address...'+result)
         return admin1 if str(admin2) == '' else admin2
     except Exception as err:
+        logging.error(err)
         return ""
 
 if __name__ == '__main__':
@@ -449,8 +453,9 @@ if __name__ == '__main__':
         "coordinates": list_failed_coordinates
     }
 
-    print ('MAPPING SUMMARY: successful:'+str(len(list_success))+ ' --- '+'failed:'+str(len(list_failed_id)))
-
     # Save failed mapping to xls
     save_to_xls(data, EXPORT_PATH)
+    
+    # Display summary
+    print ('MAPPING SUMMARY: successful:'+str(len(list_success))+ ' --- '+'failed:'+str(len(list_failed_id)))
     print ("Failed mapping file: "+EXPORT_PATH)
