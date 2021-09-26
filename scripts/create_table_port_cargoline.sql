@@ -10,5 +10,6 @@ CREATE TABLE IF NOT EXISTS port_cargoline (
 	port_name varchar(255),
 	country_name text,
 	function text,
-	coordinates text
+	coordinates text,
+	formatted_address text
 )

@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS port (
 	unlocode text,
 	function text,
 	coordinates text,
-	is_failed_mapping int
+	is_failed_mapping int,
+	formatted_address text
 )
