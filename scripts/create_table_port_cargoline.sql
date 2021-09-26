@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS port_cargoline;
 CREATE TABLE IF NOT EXISTS port_cargoline (
 	id varchar(255),
 	unlocode varchar(64),
@@ -12,4 +13,4 @@ CREATE TABLE IF NOT EXISTS port_cargoline (
 	function text,
 	coordinates text,
 	formatted_address text
-)
+);
