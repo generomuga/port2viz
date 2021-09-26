@@ -43,6 +43,17 @@ To install these packages easily, you can follow these steps:
 
 ## File Structure
 
+- config (contains the operation configurations)
+- db (contains the raw and output databases)
+- export (contains the failed mapping excel file)
+- lib (contains Python classes)
+- logs (contains the logging information)
+- scripts (contains the sql scripts)
+- controller.py (contains scheduler function)
+- main.py (contains scraping operations)
+- test.py (contains unit test)
+- requirements.txt (contains dependencies)
+
 ## About the Developer
 
-This tool was developed by [Gene Romuga](https://github.com/generomuga), a programmer from Integrative Research Support (IRS) platform of IRRI.
+This tool was developed by [Gene Romuga](https://github.com/generomuga), a programmer and constant student of IT.
