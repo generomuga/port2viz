@@ -41,6 +41,19 @@ To install these packages easily, you can follow these steps:
 2. Change directory (cd) to the directory where your `requirements.txt` is located.
 3. Type `python -m pip install -r requirements.txt`.
 
+## Configuration
+- Go to `/config/conf.ini` and set required urls and paths
+```
+  [PATH]
+  DB_KDM = /db/kdm_dev.db
+  DB_KDM_P2V = /db/kdm_port_to_viz.db
+  BASE_URL = https://unece.org/trade/cefact/unlocode-code-list-country-and-territory
+  BASE_URL_LOCODE = https://service.unece.org/trade/locode/
+  EXTENSION = .htm
+  EXPORT_PATH = /export/export_failed_mapping.xlsx
+  LOG_PATH = /logs/logs.log
+```
+
 ## Folder and File Structure
 
 - config - contains the operation configurations
