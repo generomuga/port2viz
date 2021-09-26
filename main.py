@@ -105,6 +105,62 @@ def get_formatted_addr(lat,lon):
         logging.error(err)
         return ""
 
+def get_row_content(country_code,locode):
+    try:
+        id = 0
+        for row in rows:
+            # Intialize dictionary port data
+            dict_port = {}
+
+            # Check if the country and locode are existing in the row
+            if country_code+'  '+locode in str(row).strip():
+                id += 1
+                cols = row.find_all("td")
+                unlocode = country_code+'  '+locode
+                country_name = get_country_name(home_page_content, country_code)
+                port_name = cols[2].string
+                function = cols[5].string
+                coordinates = cols[9].string
+                
+                lat = ''
+                lon = ''
+                formatted_address = ''
+
+                # Activate this during the actual run
+                is_failed = is_failed_mapping(
+                    function=function,
+                    country_name=country_name,
+                    port_name=port_name,
+                    coordinates=coordinates
+                )
+                # Activate this if you want to test the function
+                # is_failed = random.randrange(0,2)
+
+                if is_failed != 1:
+                    lat,lon = convert_lat_lon(coordinates)
+                    formatted_address = get_formatted_addr(lat,lon)+', '+country_name
+                else:
+                    lat,lon = '',''
+
+                # Set dictionary port data
+                dict_port = {
+                    "id": id,
+                    "port_name": port_name,
+                    "unlocode": unlocode,
+                    "country_name": country_name,
+                    "function": function,
+                    "coordinates": coordinates,
+                    # "is_failed_mapping": is_failed
+                    "is_failed_mapping": is_failed,
+                    "lat": lat,
+                    "lon": lon,
+                    "formatted_address": formatted_address
+                }
+                return dict_port
+                
+    except Exception as err:
+        print (err)
+
 if __name__ == '__main__':
 
     # Get root path
@@ -178,7 +234,7 @@ if __name__ == '__main__':
 
     # Initialize variable that will handle port data and id
     ports = []
-    id = 0
+    # id = 0
 
     # Get home page content
     home_page_content = scp.get_page_content(
@@ -209,59 +265,13 @@ if __name__ == '__main__':
         print ('+ Scraping unlocode '+str(country_code)+' '+str(locode)+' process '+str(scp_ctr)+'/'+str(count_locinfos)+'...')
         rows = locode_page_content.find_all("tr")
         
-        for row in rows:
-            # Intialize dictionary port data
-            dict_port = {}
+        dict_port = get_row_content(country_code, locode)
 
-            # Check if the country and locode are existing in the row
-            if country_code+'  '+locode in str(row).strip():
-                id += 1
-                cols = row.find_all("td")
-                unlocode = country_code+'  '+locode
-                country_name = get_country_name(home_page_content, country_code)
-                port_name = cols[2].string
-                function = cols[5].string
-                coordinates = cols[9].string
-                
-                lat = ''
-                lon = ''
-                formatted_address = ''
-
-                # Activate this during the actual run
-                is_failed = is_failed_mapping(
-                    function=function,
-                    country_name=country_name,
-                    port_name=port_name,
-                    coordinates=coordinates
-                )
-                # Activate this if you want to test the function
-                # is_failed = random.randrange(0,2)
-
-                if is_failed != 1:
-                    lat,lon = convert_lat_lon(coordinates)
-                    formatted_address = get_formatted_addr(lat,lon)+', '+country_name
-                else:
-                    lat,lon = '',''
-
-                # Set dictionary port data
-                dict_port = {
-                    "id": id,
-                    "port_name": port_name,
-                    "unlocode": unlocode,
-                    "country_name": country_name,
-                    "function": function,
-                    "coordinates": coordinates,
-                    # "is_failed_mapping": is_failed
-                    "is_failed_mapping": is_failed,
-                    "lat": lat,
-                    "lon": lon,
-                    "formatted_address": formatted_address
-                }
-
-                # Save to list of port data
-                ports.append(dict_port)
-                if len(ports) > 0:
-                    print ('--+ Data has been successfully scraped!')
+        if len(dict_port) > 0:
+            # Save to list of port data
+            ports.append(dict_port)
+            if len(ports) > 0:
+                print ('--+ Data has been successfully scraped!')
     
     # Save to database
     query_save_port = """
