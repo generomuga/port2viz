@@ -240,7 +240,6 @@ if __name__ == '__main__':
                 if is_failed != 1:
                     lat,lon = convert_lat_lon(coordinates)
                     formatted_address = get_formatted_addr(lat,lon)+', '+country_name
-                    print ('Get lat lon')
                 else:
                     lat,lon = '',''
                     print ('faield lat lon')
