@@ -1,6 +1,7 @@
 from logging import error
 from multiprocessing import Pool, TimeoutError
 from bs4 import BeautifulSoup
+import links as lk
 from lib.database import Database
 
 import time
@@ -165,61 +166,8 @@ if __name__ == '__main__':
         table='port_cargoline'
     )
 
-    links = [
-        ('https://service.unece.org/trade/locode/al.htm','AL','BUT','Albania'),
-        ('https://service.unece.org/trade/locode/al.htm','AL','HMR','Albania'),
-        ('https://service.unece.org/trade/locode/al.htm','AL','SAR','Albania'),
-        ('https://service.unece.org/trade/locode/al.htm','AL','SHG','Albania'),
-        ('https://service.unece.org/trade/locode/br.htm','BR','AGS','Brazil'),
-        ('https://service.unece.org/trade/locode/br.htm','BR','ALH','Brazil'),
-        ('https://service.unece.org/trade/locode/br.htm','BR','ARB','Brazil'),
-        ('https://service.unece.org/trade/locode/br.htm','BR','ARE','Brazil'),
-        ('https://service.unece.org/trade/locode/br.htm','BR','BUN','Brazil'),
-        ('https://service.unece.org/trade/locode/br.htm','BR','RCH','Brazil'),
-        ('https://service.unece.org/trade/locode/by.htm','BY','KDC','Belarus'),
-        ('https://service.unece.org/trade/locode/by.htm','BY','KLK','Belarus'),
-        ('https://service.unece.org/trade/locode/by.htm','BY','PIK','Belarus'),
-        ('https://service.unece.org/trade/locode/by.htm','BY','SNM','Belarus'),
-        ('https://service.unece.org/trade/locode/by.htm','BY','VAW','Belarus'),
-        ('https://service.unece.org/trade/locode/cr.htm','CR','CAB','Costa Rica'),
-        ('https://service.unece.org/trade/locode/de.htm','DE','ACX','Germany'),
-        ('https://service.unece.org/trade/locode/de.htm','DE','AMR','Germany'),
-        ('https://service.unece.org/trade/locode/eh.htm','EH','EAI','Western Sahara'),
-        ('https://service.unece.org/trade/locode/ga.htm','GA','NYA','Gabon'),
-        ('https://service.unece.org/trade/locode/hr.htm','HR','CRS','Croatia'),
-        ('https://service.unece.org/trade/locode/hr.htm','HR','DRK','Croatia'),
-        ('https://service.unece.org/trade/locode/il.htm','IL','BGV','Israel'),
-        ('https://service.unece.org/trade/locode/jp.htm','JP','AMX','Japan'),
-        ('https://service.unece.org/trade/locode/jp.htm','JP','ARJ','Japan'),
-        ('https://service.unece.org/trade/locode/jp.htm','JP','CHG','Japan'),
-        ('https://service.unece.org/trade/locode/jp.htm','JP','CHW','Japan'),
-        ('https://service.unece.org/trade/locode/lk.htm','LK','HBA','Sri Lanka'),
-        ('https://service.unece.org/trade/locode/lk.htm','LK','KCT','Sri Lanka'),
-        ('https://service.unece.org/trade/locode/lk.htm','LK','OLU','Sri Lanka'),
-        ('https://service.unece.org/trade/locode/ma.htm','MA','BRE','Morocco'),
-        ('https://service.unece.org/trade/locode/ma.htm','MA','EUN','Morocco'),
-        ('https://service.unece.org/trade/locode/ma.htm','MA','TNG','Morocco'),
-        ('https://service.unece.org/trade/locode/md.htm','MD','GIU','Moldova, Republic of'),
-        ('https://service.unece.org/trade/locode/md.htm','MD','XXX','Moldova, Republic of'),
-        ('https://service.unece.org/trade/locode/na.htm','NA','LUD','Namibia'),
-        ('https://service.unece.org/trade/locode/na.htm','NA','RUA','Namibia'),
-        ('https://service.unece.org/trade/locode/na.htm','NA','TSB','Namibia'),
-        ('https://service.unece.org/trade/locode/nz.htm','NZ','ORR','New Zealand'),
-        ('https://service.unece.org/trade/locode/nz.htm','NZ','ORW','New Zealand'),
-        ('https://service.unece.org/trade/locode/ph.htm','PH','ARA','Philippines'),
-        ('https://service.unece.org/trade/locode/ph.htm','PH','BUG','Philippines'),
-        ('https://service.unece.org/trade/locode/pk.htm','PK','BQM','Pakistan'),
-        ('https://service.unece.org/trade/locode/pk.htm','PK','GWD','Pakistan'),
-        ('https://service.unece.org/trade/locode/pk.htm','PK','KIA','Pakistan'),
-        ('https://service.unece.org/trade/locode/ss.htm','SS','RUM','South Sudan'),
-        ('https://service.unece.org/trade/locode/to.htm','TO','TBU','Tonga'),
-        ('https://service.unece.org/trade/locode/ug.htm','UG','KAB','Uganda'),
-        ('https://service.unece.org/trade/locode/vi.htm','VI','PAX','Virgin Islands, U.S.'),
-        ('https://service.unece.org/trade/locode/yt.htm','YT','MAM','Mayotte')
-    ]
-    
     with Pool(processes=12) as pool:
-        result = pool.map(get_page_content, links) # tuple of args for foo
+        result = pool.map(get_page_content, lk.links) # tuple of args for foo
         # print (async_result)
 
     query_join_port_cargoline = """
