@@ -1,10 +1,13 @@
+from logging import error
 from multiprocessing import Pool, TimeoutError
-import time
 from bs4 import BeautifulSoup
+from lib.database import Database
+
+import time
 import requests
 import reverse_geocoder as rg
-
 import sys
+
 sys.setrecursionlimit(100000)
 
 def _convert_lat_lon(coordinates):
@@ -48,11 +51,11 @@ def is_failed_mapping(**kwargs):
         return 1
 
 def _get_data(rows, country_code, locode, country):
-    id = 0
+    # id = 0
     dict_port = {}
     for row in rows:
         if country_code+'  '+locode in str(row).strip():
-            id += 1
+            # id += 1
             cols = row.find_all("td")
             unlocode = country_code+'  '+locode
             country_name = country
@@ -69,7 +72,7 @@ def _get_data(rows, country_code, locode, country):
             )
 
             dict_port = {
-                "id": id,
+                # "id": id,
                 "port_name": port_name,
                 "unlocode": unlocode,
                 "country_name": country_name,
@@ -97,9 +100,51 @@ def get_page_content(data):
         ports.append(result)
 
     print (ports)
-    return 1
+
+    query_save_port = """
+        INSERT INTO port 
+            (
+                port_name,
+                country_name,
+                unlocode,
+                function,
+                coordinates,
+                is_failed_mapping
+            ) 
+        VALUES 
+            (
+                :port_name,
+                :country_name,
+                :unlocode,
+                :function,
+                :coordinates,
+                :is_failed_mapping
+            )
+    """
+
+    try:
+        db_p = Database()
+        con_p = db_p.connect(db='db/kdm_dev2.db')
+        cur_p = con_p.cursor()
+
+        cur_p.executemany(query_save_port, ports)
+        con_p.commit()
+        con_p.close()
+    except Exception as err:
+        print (err)
 
 if __name__ == '__main__':
+
+    db_p = Database()
+    con_p = db_p.connect(db='db/kdm_dev2.db')
+    cur_p = con_p.cursor()
+
+    # Reset port table
+    db_p.truncate_table(
+        con=con_p,
+        cursor=cur_p,
+        table='port'
+    )
 
     links = [
         ('https://service.unece.org/trade/locode/al.htm','AL','BUT','<country_name>'),
@@ -204,6 +249,6 @@ if __name__ == '__main__':
         ('https://service.unece.org/trade/locode/yt.htm','YT','MAM','<country_name>'),
     ]
     
-    with Pool(processes=10) as pool:
-        async_result = pool.map(get_page_content, links) # tuple of args for foo
-        print (async_result)
+    with Pool(processes=12) as pool:
+        result = pool.map(get_page_content, links) # tuple of args for foo
+        # print (async_result)
